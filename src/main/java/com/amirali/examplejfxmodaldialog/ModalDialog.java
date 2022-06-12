@@ -143,7 +143,6 @@ public class ModalDialog extends Stage {
 
             root.setId("window");
             root.setPrefSize(400, 200);
-            root.setEffect(new DropShadow());
 
             titleLabel.textProperty().bind(dialogTitleProperty);
             titleLabel.setId("title");
