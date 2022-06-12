@@ -12,7 +12,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.Label;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
@@ -23,6 +22,8 @@ import javafx.stage.Window;
 import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class ModalDialog extends Stage {
@@ -135,6 +136,7 @@ public class ModalDialog extends Stage {
         };
         private final DoubleProperty blurRadiusProperty = new SimpleDoubleProperty(10);
         private final ObjectProperty<Duration> durationProperty = new SimpleObjectProperty<>(Duration.millis(300));
+        private final List<EventHandler<ActionEvent>> positiveEventHandlers = new ArrayList<>(), negativeEventsHandler = new ArrayList<>();
         private final Window owner;
         private ModalDialog modalDialog;
 
@@ -154,6 +156,7 @@ public class ModalDialog extends Stage {
             messageLabel.setAlignment(Pos.TOP_LEFT);
             messageLabel.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
+            positiveButton.setDefaultButton(true);
             positiveButton.setId("positive-button");
             negativeButton.setId("negative-button");
 
@@ -180,11 +183,12 @@ public class ModalDialog extends Stage {
         }
 
         public Builder setPositiveButton(@NotNull String text, @NotNull EventHandler<ActionEvent> event) {
+            positiveEventHandlers.add(event);
             positiveButton.setText(text);
-            positiveButton.setOnAction(event1 -> {
+            positiveButton.setOnAction(actionEvent -> {
                 if (modalDialog != null)
                     modalDialog.closeDialog();
-                event.handle(event1);
+                positiveEventHandlers.forEach(eventEventHandler -> eventEventHandler.handle(actionEvent));
             });
 
             if (!positiveButtonAdded) {
@@ -196,11 +200,12 @@ public class ModalDialog extends Stage {
         }
 
         public Builder setNegativeButton(@NotNull String text, @NotNull EventHandler<ActionEvent> event) {
+            negativeEventsHandler.add(event);
             negativeButton.setText(text);
-            negativeButton.setOnAction(event1 -> {
+            negativeButton.setOnAction(actionEvent -> {
                 if (modalDialog != null)
                     modalDialog.closeDialog();
-                event.handle(event1);
+                negativeEventsHandler.forEach(eventEventHandler -> eventEventHandler.handle(actionEvent));
             });
 
             if (!negativeButtonAdded) {
